@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -34,6 +35,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,6 +60,13 @@ val Naranja = Color(0xFFFF8F00)
 fun ProductListScreen(viewModel: ProductViewModel, onEditar: (Int) -> Unit) {
     val estado = viewModel.uiState
     var aEliminar by remember { mutableStateOf<ProductModel?>(null) }
+    val listState = rememberLazyListState()
+
+    // Al crear un producto se agrega al inicio, se desplaza la lista para que se vea
+    val primerId = estado.productos.firstOrNull()?.id
+    LaunchedEffect(primerId) {
+        if (primerId != null) listState.animateScrollToItem(0)
+    }
 
     when {
         estado.cargando -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -73,6 +82,7 @@ fun ProductListScreen(viewModel: ProductViewModel, onEditar: (Int) -> Unit) {
             Button(onClick = { viewModel.cargar() }) { Text("Reintentar") }
         }
         else -> LazyColumn(
+            state = listState,
             contentPadding = PaddingValues(12.dp, 12.dp, 12.dp, 88.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
