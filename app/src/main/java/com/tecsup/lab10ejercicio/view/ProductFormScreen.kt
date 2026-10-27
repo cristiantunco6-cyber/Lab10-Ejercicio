@@ -19,6 +19,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -35,6 +37,8 @@ fun ProductFormScreen(viewModel: ProductViewModel, id: Int, onVolver: () -> Unit
     var categoria by remember { mutableStateOf(existente?.category ?: "") }
     var descripcion by remember { mutableStateOf(existente?.description ?: "") }
     var error by remember { mutableStateOf<String?>(null) }
+    val focusManager = LocalFocusManager.current
+    val teclado = LocalSoftwareKeyboardController.current
 
     Column(
         Modifier
@@ -71,6 +75,9 @@ fun ProductFormScreen(viewModel: ProductViewModel, id: Int, onVolver: () -> Unit
         error?.let { Text(it, color = androidx.compose.ui.graphics.Color.Red) }
         Button(
             onClick = {
+                // Se quita el foco y se oculta el teclado antes de volver a la lista
+                focusManager.clearFocus()
+                teclado?.hide()
                 val precioNum = precio.toDoubleOrNull()
                 if (titulo.isBlank() || precioNum == null) {
                     error = "Ingresa un título y un precio válido"
